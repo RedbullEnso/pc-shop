@@ -6,8 +6,8 @@ Statische Seite ohne Build-Schritt (HTML + CSS + JavaScript). Die Angebote stehe
 
 ```
 node dev-server.mjs        # http://127.0.0.1:5176/  (nur dieser Rechner, Admin: /admin/)
-node tests/site.mjs        # 38 Prüfungen der öffentlichen Seite
-node tests/admin.mjs       # 55 Prüfungen des Admin-Bereichs (simulierte GitHub-API)
+node tests/site.mjs        # 57 Prüfungen der öffentlichen Seite
+node tests/admin.mjs       # 58 Prüfungen des Admin-Bereichs (simulierte GitHub-API)
 ```
 
 ## Angebote einstellen (Admin)
@@ -23,12 +23,14 @@ Alternativ kannst du mir Fotos und Daten schicken, ich trage sie in `data/listin
 
 ## Einstellungen
 
-Alles in `config.js`: Name, WhatsApp-Nummer, Ort, optionale E-Mail/Kleinanzeigen-Link, Kategorien, Prüfpunkte, Ablauf-Schritte und FAQ.
+Alles in `config.js`: Name, Ort, Kontaktwege (Discord-Einladungslink, Kleinanzeigen-Profil, optional E-Mail oder WhatsApp), Kategorien, Prüfpunkte, Ablauf-Schritte und FAQ. Deine private Handynummer steht nirgends.
+
+Kontakt: „Auf Discord anfragen“ kopiert die Nachricht (PC, Preis, Link) und öffnet den Server; Käufer fügen sie im Kanal „anfragen“ ein. Beim Angebot kannst du optional den Link zur Kleinanzeigen-Anzeige eintragen, dann verlinkt die Seite dorthin.
 
 ## Vor dem Livegang
 
-- [ ] WhatsApp-Nummer in `config.js` (aktuell Platzhalter `490000000000`)
-- [ ] Ort (`region`) in `config.js`, falls gewünscht
+- [ ] Discord-Server anlegen (Kanal „anfragen“, nur dort schreiben erlaubt) und Einladungslink in `config.js` (`discord`, aktuell Platzhalter)
+- [ ] Kleinanzeigen-Profil-Link in `config.js` (`kleinanzeigen`)
 - [ ] Impressum und Datenschutz ausfüllen (`impressum.html`, `datenschutz.html`, Hinweisbox löschen)
 - [ ] Texte mit Zusagen prüfen (`steps` und `faq` in `config.js`, Vertrauensleiste in `js/app.js`)
 - [ ] Beispieleinträge in der Admin-Seite löschen (Button „Beispiele löschen“)

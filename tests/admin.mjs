@@ -94,6 +94,11 @@ t.ok(await page.locator('.photo').count() === 2, 'Zwei Fotos erscheinen als Vors
 t.ok(await page.locator('.photo__lead').count() === 1, 'Erstes Foto ist als Titelbild markiert');
 await page.locator('.photo').nth(1).locator('button[aria-label="Nach vorn"]').click();
 t.ok(await page.locator('.photo').first().locator('img').evaluate((i) => i.naturalHeight > i.naturalWidth), 'Foto lässt sich nach vorn schieben (Hochformat jetzt zuerst)');
+await page.fill('input[name=adUrl]', 'https://evil.example/s-anzeige/1');
+await clearToasts();
+await page.click('button:has-text("Speichern & veröffentlichen")');
+t.ok((await toast('error')).includes('kleinanzeigen.de'), 'Fremder Link statt Kleinanzeigen wird abgelehnt');
+await page.fill('input[name=adUrl]', 'https://www.kleinanzeigen.de/s-anzeige/test-pc/123-278-456');
 await page.uncheck('input[name=pickup]');
 await clearToasts();
 await page.click('button:has-text("Speichern & veröffentlichen")');
@@ -108,6 +113,7 @@ t.ok(added.price === 333 && added.status === 'available' && added.added === toda
 t.ok(added.specs.cpu === 'Intel Core i5-12400F' && added.specs.gpu === 'RTX 3060' && !('ram' in added.specs), 'Nur ausgefüllte Spezifikationen gespeichert', added.specs);
 t.ok(added.checks.join('|') === 'Stresstest bestanden|Neue Wärmeleitpaste', 'Prüfpunkte inkl. eigenem Punkt gespeichert', added.checks);
 t.ok(added.handover.pickup === true && added.handover.shipping === false, 'Übergabe gespeichert');
+t.ok(added.adUrl === 'https://www.kleinanzeigen.de/s-anzeige/test-pc/123-278-456', 'Kleinanzeigen-Link gespeichert', added.adUrl);
 t.ok(added.photos.length === 2, 'Zwei Fotos im Eintrag', added.photos);
 let maxFull = 0;
 for (const p of added.photos) {
@@ -142,6 +148,7 @@ await page.click('button:has-text("Speichern & veröffentlichen")');
 await toast('ok');
 const edited = mock.listings().find((l) => l.id === added.id);
 t.ok(edited.price === 300 && edited.negotiable === true, 'Preis und VB geändert');
+t.ok(edited.adUrl === added.adUrl, 'Kleinanzeigen-Link bleibt beim Bearbeiten erhalten');
 t.ok(edited.photos.length === 1 && edited.photos[0] === added.photos[1], 'Entferntes Foto ist aus dem Eintrag raus');
 t.ok(!mock.paths().includes(`img/${removedPhoto}`) && !mock.paths().includes(`img/${removedPhoto.replace(/\.jpg$/, '-t.jpg')}`), 'Entferntes Foto und Vorschaubild sind aus dem Repo gelöscht');
 t.ok(edited.added === added.added && edited.id === added.id, 'ID und Einstelldatum bleiben beim Bearbeiten');

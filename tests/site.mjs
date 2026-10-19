@@ -1,19 +1,28 @@
 // Prüft die öffentliche Seite im echten Browser. Voraussetzung: node dev-server.mjs läuft.
 import { launch, BASE } from './pw.mjs';
+import { readFileSync } from 'node:fs';
+import cfg from '../config.js';
 import { createChecker } from './util.mjs';
 
 const t = createChecker();
 const browser = await launch();
 const errors = [];
 
-async function open(url, { viewport = { width: 1280, height: 800 }, listings, image } = {}) {
+async function open(url, { viewport = { width: 1280, height: 800 }, listings, image, config } = {}) {
   const ctx = await browser.newContext({ viewport });
+  // Fremde Adressen (Discord, Kleinanzeigen) nie wirklich aufrufen; Zwischenablage mitschneiden statt schreiben
+  await ctx.route((u) => u.hostname !== '127.0.0.1', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: 'extern' }));
+  await ctx.addInitScript(() => {
+    window.__copied = [];
+    if (navigator.clipboard) navigator.clipboard.writeText = async (text) => { window.__copied.push(text); };
+  });
   const page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(e.message));
   if (listings) {
     await page.route('**/data/listings.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ listings }) }));
   }
+  if (config) await page.route('**/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: config }));
   if (image) await page.route('**/img/**', (r) => r.fulfill({ contentType: 'image/jpeg', body: image }));
   await page.goto(BASE + url, { waitUntil: 'networkidle' });
   return { ctx, page };
@@ -43,7 +52,7 @@ async function bigJpeg() {
   await ctx.close();
 }
 
-// 2. Detailansicht, WhatsApp-Link, Schließen, Zurück-Taste, Direktlink
+// 2. Detailansicht, Kontaktwege (Discord kopiert die Nachricht), Schließen, Zurück-Taste, Direktlink
 {
   const { ctx, page } = await open('/');
   await page.selectOption('#sort', 'asc');
@@ -51,10 +60,16 @@ async function bigJpeg() {
   await page.waitForSelector('dialog#detail[open]');
   t.ok(page.url().endsWith('#pc=beispiel-office-i5'), 'Adresse bekommt #pc=<id>', page.url());
   t.ok((await page.textContent('dialog .info h2')).includes('Büro-PC'), 'Detailtitel stimmt');
-  const wa = await page.getAttribute('dialog .btn--wa', 'href');
-  const text = decodeURIComponent(wa.split('?text=')[1] || '');
-  t.ok(wa.startsWith('https://wa.me/490000000000?text='), 'WhatsApp-Link zeigt auf die Nummer aus config.js', wa);
-  t.ok(text.includes('Büro-PC Core i5-10400') && text.includes('249 €') && text.includes('#pc=beispiel-office-i5'), 'WhatsApp-Text enthält Titel, Preis und Link', text);
+  t.ok(await page.getAttribute('dialog .btn--discord', 'href') === cfg.discord, 'Discord-Button zeigt auf den Einladungslink aus config.js');
+  t.ok(await page.getAttribute('dialog .btn--discord', 'target') === '_blank' && (await page.getAttribute('dialog .btn--discord', 'rel')).includes('noopener'), 'Discord-Link öffnet in neuem Tab mit noopener');
+  t.ok(await page.locator('dialog .cta__note').isHidden(), 'Hinweis erscheint erst nach dem Klick');
+  await page.click('dialog .btn--discord');
+  const copied = await page.evaluate(() => window.__copied);
+  t.ok(copied.length === 1 && copied[0].includes('Büro-PC Core i5-10400') && copied[0].includes('249 €') && copied[0].includes('#pc=beispiel-office-i5'), 'Klick kopiert Nachricht mit Titel, Preis und Link', copied);
+  const note = await page.textContent('dialog .cta__note');
+  t.ok(note.includes('Nachricht kopiert') && note.includes('„anfragen“'), 'Hinweis nennt den Kanal "anfragen"', note);
+  t.ok(await page.getAttribute('dialog .btn--ghost[href^="https"]', 'href') === cfg.kleinanzeigen, 'Ohne eigene Anzeige: Kleinanzeigen-Profil verlinkt');
+  t.ok(await page.locator('dialog .btn--wa').count() === 0, 'Ohne WhatsApp-Nummer in config.js kein WhatsApp-Button');
   t.ok(await page.locator('dialog .specs div').count() === 5, 'Datenblatt zeigt 5 Zeilen');
   t.ok(await page.locator('dialog .flaws').count() === 1, 'Mängelkasten vorhanden');
   await page.click('dialog .detail__x');
@@ -65,18 +80,45 @@ async function bigJpeg() {
   await page.keyboard.press('Escape');
   await page.waitForSelector('dialog#detail:not([open])', { state: 'attached' });
   t.ok(true, 'Escape schließt die Ansicht');
+  const links = await page.locator('#contactLinks a').evaluateAll((as) => as.map((a) => a.textContent.trim()));
+  t.ok(links.length === 2 && links[0].includes('Discord') && links[1].includes('Kleinanzeigen'), 'Kontaktbereich zeigt Discord und Kleinanzeigen', links);
+  t.ok((await page.textContent('#contactHow')).includes('„anfragen“'), 'Kontaktbereich erklärt den Ablauf auf Discord');
   await ctx.close();
 
   const direct = await open('/#pc=beispiel-streaming-12700k');
   t.ok(await direct.page.locator('dialog#detail[open]').count() === 1, 'Direktlink öffnet die Detailansicht');
-  t.ok((await direct.page.textContent('dialog .btn--wa')).includes('reserviert'), 'Reservierter PC: Button "Nachfragen (reserviert)"');
+  t.ok((await direct.page.textContent('dialog .btn--discord')).includes('nachfragen'), 'Reservierter PC: Button "Auf Discord nachfragen"');
   await direct.page.click('dialog .detail__x');
   t.ok(!direct.page.url().includes('#pc='), 'Direktlink: Schließen säubert die Adresse', direct.page.url());
   await direct.ctx.close();
 
   const sold = await open('/#pc=beispiel-ryzen3600-1660s');
   t.ok(await sold.page.locator('dialog [aria-disabled="true"]').count() === 1, 'Verkaufter PC: Button deaktiviert');
+  t.ok((await sold.page.textContent('dialog .btn--discord')).includes('Ähnlichen PC'), 'Verkaufter PC bietet "Ähnlichen PC anfragen"');
   await sold.ctx.close();
+
+  // Eigene Kleinanzeigen-Anzeige wird verlinkt; unsichere oder fremde Links nie
+  const ad = (id, adUrl) => ({
+    id, title: `Anzeige ${id}`, category: 'Gaming-PC', status: 'available', price: 1, negotiable: false, condition: 'Gut',
+    specs: {}, checks: [], flaws: 'Keine.', description: '', handover: { pickup: true, shipping: false }, photos: [], added: '2026-10-19', adUrl,
+  });
+  const good = await open('/#pc=a1', { listings: [ad('a1', 'https://www.kleinanzeigen.de/s-anzeige/test/123')] });
+  t.ok((await good.page.textContent('dialog .btn--ghost[href^="https"]')).includes('Anzeige auf Kleinanzeigen'), 'Gültiger adUrl: Button "Anzeige auf Kleinanzeigen"');
+  t.ok(await good.page.getAttribute('dialog .btn--ghost[href^="https"]', 'href') === 'https://www.kleinanzeigen.de/s-anzeige/test/123', 'Button zeigt auf die Anzeige');
+  await good.ctx.close();
+  for (const bad of ['javascript:window.__pwned=1', 'https://kleinanzeigen.de.evil.example/x', 'http://www.kleinanzeigen.de/x', 'https://evil.example/']) {
+    const r = await open('/#pc=a2', { listings: [ad('a2', bad)] });
+    t.ok(await r.page.getAttribute('dialog .btn--ghost[href^="https"]', 'href') === cfg.kleinanzeigen, `Unzulässiger adUrl wird ignoriert (${bad})`);
+    t.ok(await r.page.locator('a[href^="javascript:"]').count() === 0, `Kein javascript:-Link (${bad})`);
+    await r.ctx.close();
+  }
+
+  // WhatsApp bleibt optional: erscheint nur, wenn config.js eine Nummer enthält
+  const waCfg = readFileSync(new URL('../config.js', import.meta.url), 'utf8').replace("whatsapp: ''", "whatsapp: '491234567'");
+  const wa = await open('/#pc=beispiel-office-i5', { config: waCfg });
+  const href = await wa.page.getAttribute('dialog .btn--wa', 'href');
+  t.ok(href?.startsWith('https://wa.me/491234567?text=') && decodeURIComponent(href).includes('Büro-PC Core i5-10400'), 'Mit Nummer in config.js erscheint der WhatsApp-Button mit Text', href);
+  await wa.ctx.close();
 }
 
 // 3. Fotos: Galerie mit Vor/Zurück und Tastatur
@@ -120,7 +162,7 @@ async function bigJpeg() {
 // 5. Leere Liste und Ladefehler
 {
   const { ctx, page } = await open('/', { listings: [] });
-  t.ok(await page.locator('#grid .empty').count() === 1, 'Leere Liste zeigt Hinweis mit WhatsApp-Button');
+  t.ok(await page.locator('#grid .empty a[href="#kontakt"]').count() === 1, 'Leere Liste zeigt Hinweis mit Kontakt-Button');
   t.ok(await page.locator('#verkauft').isHidden(), 'Verkauft-Bereich bleibt ohne Einträge versteckt');
   await ctx.close();
   const ctx2 = await browser.newContext();

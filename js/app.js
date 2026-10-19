@@ -1,11 +1,14 @@
 import cfg from '../config.js';
 import {
-  $, h, icon, pcArt, waLink, listingUrl, fmtPrice, fmtDate, specLine,
+  $, h, icon, pcArt, waLink, safeUrl, listingUrl, fmtPrice, fmtDate, specLine,
   photoUrl, thumbUrl, STATUS_LABEL, SPEC_FIELDS,
 } from './lib.js';
 
 const state = { all: [], cat: 'Alle', sort: 'new', failed: false };
-const WA_HELLO = 'Hallo, ich habe eine Frage zu deinen PCs.';
+const HELLO = 'Hallo, ich habe eine Frage zu deinen PCs.';
+const DISCORD = safeUrl(cfg.discord);
+const PROFILE = safeUrl(cfg.kleinanzeigen, 'kleinanzeigen.de');
+if (!DISCORD && !PROFILE && !cfg.whatsapp && !cfg.email) console.warn('Kein Kontaktweg in config.js eingetragen.');
 const newest = (a, b) => (b.added || '').localeCompare(a.added || '');
 const price = (l) => h('span', { class: 'price' }, fmtPrice(l.price), l.negotiable && h('small', {}, 'VB'));
 
@@ -68,18 +71,41 @@ function reveal(root) {
   }
 }
 
+/* ---------- Kontaktwege ---------- */
+
+// Alle eingetragenen Kontaktwege als Buttons. Discord kann keinen Text vorausfüllen:
+// Beim Klick wird die Nachricht in die Zwischenablage kopiert und darunter ein Hinweis gezeigt.
+function contactButtons(message, { discordLabel = 'Auf Discord anfragen', adUrl } = {}) {
+  const hint = h('p', { class: 'cta__note', hidden: true });
+  const channel = `„${cfg.discordChannel}“`;
+  const showHint = (copied) => {
+    hint.hidden = false;
+    hint.textContent = copied
+      ? `Nachricht kopiert. Füge sie im Server im Kanal ${channel} ein.`
+      : `Schreib im Server im Kanal ${channel}: ${message}`;
+  };
+  const copy = () => {
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(message).then(() => showHint(true), () => showHint(false));
+    else showHint(false);
+  };
+  const ad = safeUrl(adUrl, 'kleinanzeigen.de');
+  const link = (cls, href, ...children) => h('a', { class: `btn ${cls}`, href, target: '_blank', rel: 'noopener' }, ...children);
+  return [
+    DISCORD && h('a', { class: 'btn btn--discord', href: DISCORD, target: '_blank', rel: 'noopener', onclick: copy }, icon('chat'), discordLabel),
+    (ad || PROFILE) && link('btn--ghost', ad || PROFILE, ad ? 'Anzeige auf Kleinanzeigen' : 'Kleinanzeigen-Profil'),
+    cfg.whatsapp && link('btn--wa', waLink(cfg, message), icon('wa'), 'Per WhatsApp anfragen'),
+    hint,
+  ];
+}
+
+const contactCta = () => h('a', { class: 'btn btn--primary', href: '#kontakt' }, 'Kontakt aufnehmen');
+
 /* ---------- Seitenteile ---------- */
 
 function renderStatic() {
   document.title = `${cfg.brand} – ${cfg.tagline}`;
   $('#brand').textContent = cfg.brand;
   $('#footBrand').textContent = `© ${new Date().getFullYear()} ${cfg.brand}`;
-
-  for (const id of ['#waTop', '#waHero']) {
-    const a = $(id);
-    a.href = waLink(cfg, WA_HELLO);
-    a.target = '_blank';
-  }
 
   $('#trust').replaceChildren(...TRUST.map(([ic, t, s]) =>
     h('div', { class: 'trust__item' },
@@ -92,10 +118,12 @@ function renderStatic() {
   $('#faqList').replaceChildren(...cfg.faq.map((f) =>
     h('details', { class: 'reveal' }, h('summary', {}, f.q), h('p', {}, f.a))));
 
+  $('#contactHow').textContent = DISCORD
+    ? `So geht's: Tritt dem Discord-Server bei und schreib im Kanal „${cfg.discordChannel}“, welcher PC dich interessiert. Beim Klick wird deine Nachricht schon kopiert.`
+    : '';
   $('#contactLinks').replaceChildren(
-    h('a', { class: 'btn btn--wa', href: waLink(cfg, WA_HELLO), target: '_blank', rel: 'noopener' }, icon('wa'), 'WhatsApp schreiben'),
-    cfg.email && h('a', { class: 'btn btn--ghost', href: `mailto:${cfg.email}` }, 'E-Mail'),
-    cfg.kleinanzeigen && h('a', { class: 'btn btn--ghost', href: cfg.kleinanzeigen, target: '_blank', rel: 'noopener' }, 'Kleinanzeigen-Profil'));
+    ...contactButtons(HELLO, { discordLabel: 'Discord-Server beitreten' }),
+    cfg.email && h('a', { class: 'btn btn--ghost', href: `mailto:${cfg.email}` }, 'E-Mail'));
 }
 
 function renderHero() {
@@ -134,7 +162,7 @@ function renderGrid() {
   if (state.failed) {
     $('#grid').replaceChildren(h('div', { class: 'empty' },
       h('p', {}, 'Die Angebote konnten gerade nicht geladen werden. Bitte lade die Seite neu oder schreib mir direkt.'),
-      h('a', { class: 'btn btn--wa', href: waLink(cfg, WA_HELLO), target: '_blank', rel: 'noopener' }, icon('wa'), 'Per WhatsApp fragen')));
+      contactCta()));
     return;
   }
   const rank = { available: 0, reserved: 1 };
@@ -146,7 +174,7 @@ function renderGrid() {
   grid.replaceChildren(...(items.length ? items.map(card) : [
     h('div', { class: 'empty' },
       h('p', {}, 'Aktuell ist alles vergeben. Neue PCs kommen laufend dazu. Schreib mir, wenn du etwas Bestimmtes suchst.'),
-      h('a', { class: 'btn btn--wa', href: waLink(cfg, WA_HELLO), target: '_blank', rel: 'noopener' }, icon('wa'), 'Per WhatsApp fragen')),
+      contactCta()),
   ]));
   reveal(grid);
 }
@@ -223,11 +251,10 @@ function buildDetail(l) {
         l.status === 'sold'
           ? [
             h('span', { class: 'btn btn--ghost', 'aria-disabled': 'true' }, 'Bereits verkauft'),
-            h('a', { class: 'btn btn--wa', href: waLink(cfg, `Hallo, „${l.title}“ ist schon weg. Hast du etwas Ähnliches?`), target: '_blank', rel: 'noopener' }, icon('wa'), 'Ähnlichen PC anfragen'),
+            contactButtons(`Hallo, „${l.title}“ ist schon weg. Hast du etwas Ähnliches?`, { discordLabel: 'Ähnlichen PC anfragen' }),
           ]
-          : h('a', { class: 'btn btn--wa', href: waLink(cfg, msg), target: '_blank', rel: 'noopener' }, icon('wa'), l.status === 'reserved' ? 'Nachfragen (reserviert)' : 'Per WhatsApp anfragen'),
-        shareBtn,
-        l.status !== 'sold' && h('p', { class: 'cta__note' }, 'Du schreibst direkt mit mir, ohne Registrierung.')),
+          : contactButtons(msg, { discordLabel: l.status === 'reserved' ? 'Auf Discord nachfragen' : 'Auf Discord anfragen', adUrl: l.adUrl }),
+        shareBtn),
       specs.length > 0 && h('div', {}, h('h3', {}, 'Technische Daten'),
         h('dl', { class: 'specs' }, specs.map(([k, label]) => h('div', {}, h('dt', {}, label), h('dd', {}, l.specs[k]))))),
       l.checks?.length > 0 && h('div', {}, h('h3', {}, 'Geprüft'),

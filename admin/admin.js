@@ -1,5 +1,5 @@
 import cfg from '../config.js';
-import { $, h, pcArt, fmtPrice, photoUrl, thumbUrl, STATUS_LABEL, SPEC_FIELDS } from '../js/lib.js';
+import { $, h, pcArt, fmtPrice, photoUrl, thumbUrl, safeUrl, STATUS_LABEL, SPEC_FIELDS } from '../js/lib.js';
 import { Repo, ApiError } from './github.js';
 
 const TOKEN_KEY = 'leosrigs.token';
@@ -257,7 +257,7 @@ function viewList() {
 function newDraft() {
   return {
     id: null, title: '', category: cfg.categories[0], status: 'available', price: '', negotiable: false,
-    condition: cfg.conditions[1] || cfg.conditions[0], specs: {}, checks: [], flaws: '', description: '',
+    condition: cfg.conditions[1] || cfg.conditions[0], specs: {}, checks: [], flaws: '', description: '', adUrl: '',
     handover: { pickup: true, shipping: false }, photos: [], originalPhotos: [],
   };
 }
@@ -356,7 +356,8 @@ function viewEditor(listing) {
     h('div', { class: 'panel' },
       h('h2', {}, 'Texte'),
       field('Mängel & Hinweise', h('textarea', { name: 'flaws', required: true, maxlength: 600, placeholder: 'Kratzer, Macken, Besonderheiten. Gibt es nichts: „Keine bekannten Mängel.“' }, d.flaws), { required: true, hint: 'Ehrlichkeit schafft Vertrauen. Pflichtfeld.' }),
-      field('Beschreibung', h('textarea', { name: 'description', maxlength: 2000, placeholder: 'Wofür taugt der PC, wie lange genutzt, was wurde aufgerüstet …' }, d.description))),
+      field('Beschreibung', h('textarea', { name: 'description', maxlength: 2000, placeholder: 'Wofür taugt der PC, wie lange genutzt, was wurde aufgerüstet …' }, d.description)),
+      field('Link zur Kleinanzeigen-Anzeige (optional)', h('input', { type: 'text', name: 'adUrl', inputmode: 'url', maxlength: 300, value: d.adUrl || '', placeholder: 'https://www.kleinanzeigen.de/s-anzeige/…' }), { hint: 'Steht der PC auch bei Kleinanzeigen, verlinkt die Seite dorthin. Käufer sehen dort auch dein Profil.' })),
 
     h('div', { class: 'panel' },
       h('h2', {}, 'Übergabe'),
@@ -377,6 +378,9 @@ function viewEditor(listing) {
       const v = String(fd.get(`spec_${k}`) || '').trim();
       if (v) specs[k] = v;
     }
+    const adRaw = String(fd.get('adUrl') || '').trim();
+    const adUrl = adRaw && safeUrl(adRaw, 'kleinanzeigen.de');
+    if (adRaw && !adUrl) { toast('Der Kleinanzeigen-Link muss mit https:// beginnen und auf kleinanzeigen.de zeigen.', 'error'); return; }
     saveListing({
       title: String(fd.get('title')).trim(),
       category: fd.get('category'),
@@ -389,6 +393,7 @@ function viewEditor(listing) {
       flaws: String(fd.get('flaws')).trim(),
       description: String(fd.get('description') || '').trim(),
       handover: { pickup: fd.has('pickup'), shipping: fd.has('shipping') },
+      ...(adUrl && { adUrl }),
     }, d);
   });
 

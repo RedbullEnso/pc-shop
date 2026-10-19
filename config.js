@@ -8,13 +8,14 @@ export default {
   // Ort, z. B. 'Raum Mainz'. Leer lassen = wird nirgends angezeigt.
   region: 'Raum Wiesbaden',
 
-  // WhatsApp-Nummer: nur Ziffern, mit Ländervorwahl, ohne + und ohne Leerzeichen.
-  // PLATZHALTER, vor dem Livegang durch die echte Nummer ersetzen!
-  whatsapp: '490000000000',
-
-  // Optional: leer lassen = nicht anzeigen
+  // Kontaktwege. Leer lassen = wird nicht angezeigt. Deine private Handynummer steht nirgends.
+  // PLATZHALTER, vor dem Livegang durch die echten Links ersetzen!
+  discord: 'https://discord.gg/DEIN-EINLADUNGSCODE', // Einladungslink zu deinem Verkaufs-Server
+  discordChannel: 'anfragen', // Kanal, in den Käufer schreiben sollen
+  kleinanzeigen: 'https://www.kleinanzeigen.de/', // Link zu deinem Kleinanzeigen-Profil
   email: '',
-  kleinanzeigen: '', // Link zu deinem Kleinanzeigen-Profil
+  // Optional, nur mit eigener Nummer (nur Ziffern, mit Vorwahl, ohne +), z. B. '491701234567'
+  whatsapp: '',
 
   // Wohin die Admin-Seite speichert (dein GitHub-Repository)
   repo: { owner: 'RedbullEnso', name: 'pc-shop', branch: 'main' },
@@ -39,7 +40,7 @@ export default {
   steps: [
     {
       title: 'Anfragen',
-      text: 'Schreib mir per WhatsApp zu dem PC, der dich interessiert. Ein Klick auf „Anfragen“ füllt die Nachricht schon aus.',
+      text: 'Tritt dem Discord-Server bei und schreib im Kanal „anfragen“, welcher PC dich interessiert. Ein Klick auf „Anfragen“ kopiert die Nachricht schon.',
     },
     {
       title: 'Ansehen & testen',

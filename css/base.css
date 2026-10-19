@@ -68,6 +68,8 @@ p { margin: 0; }
 .btn--primary:hover { background: #6fd5ff; }
 .btn--wa { background: var(--wa); color: #04210f; }
 .btn--wa:hover { background: #3be07b; }
+.btn--discord { background: #5865f2; color: #fff; }
+.btn--discord:hover { background: #6b77f5; }
 .btn--ghost { background: transparent; color: var(--text); border-color: var(--line-hi); }
 .btn--ghost:hover { border-color: var(--accent); }
 .btn--danger { background: transparent; color: var(--bad); border-color: #4a2a2e; }

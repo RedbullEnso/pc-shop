@@ -54,6 +54,18 @@ export function waLink(cfg, text) {
   return `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(text)}`;
 }
 
+// Nur https-Links zulassen, optional auf eine Domain (samt Subdomains) beschränkt; sonst null
+export function safeUrl(value, domain) {
+  try {
+    const u = new URL(value);
+    if (u.protocol !== 'https:') return null;
+    if (domain && u.hostname !== domain && !u.hostname.endsWith(`.${domain}`)) return null;
+    return u.href;
+  } catch {
+    return null;
+  }
+}
+
 export function listingUrl(cfg, id) {
   const base = cfg.siteUrl || `${location.origin}${location.pathname.replace(/index\.html$/, '')}`;
   return `${base.replace(/\/?$/, '/')}#pc=${id}`;
