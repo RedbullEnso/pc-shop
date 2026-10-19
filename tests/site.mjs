@@ -5,13 +5,14 @@ import cfg from '../config.js';
 import { createChecker } from './util.mjs';
 
 const t = createChecker();
+const BASE_HOST = new URL(BASE).hostname; // lokal 127.0.0.1, live z. B. redbullenso.github.io
 const browser = await launch();
 const errors = [];
 
 async function open(url, { viewport = { width: 1280, height: 800 }, listings, image, config } = {}) {
   const ctx = await browser.newContext({ viewport });
   // Fremde Adressen (Discord, Kleinanzeigen) nie wirklich aufrufen; Zwischenablage mitschneiden statt schreiben
-  await ctx.route((u) => u.hostname !== '127.0.0.1', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: 'extern' }));
+  await ctx.route((u) => u.hostname !== BASE_HOST, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: 'extern' }));
   await ctx.addInitScript(() => {
     window.__copied = [];
     if (navigator.clipboard) navigator.clipboard.writeText = async (text) => { window.__copied.push(text); };

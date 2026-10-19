@@ -29,7 +29,7 @@ const page = await ctx.newPage();
 const external = new Set();
 page.on('console', (msg) => { if (msg.type() === 'error') errors.push(msg.text()); });
 page.on('pageerror', (e) => errors.push(e.message));
-page.on('request', (r) => { const u = new URL(r.url()); if (!['127.0.0.1', 'api.github.com'].includes(u.hostname) && u.protocol.startsWith('http')) external.add(u.hostname); });
+page.on('request', (r) => { const u = new URL(r.url()); if (![new URL(BASE).hostname, 'api.github.com'].includes(u.hostname) && u.protocol.startsWith('http')) external.add(u.hostname); });
 const notFound = [];
 page.on('response', (r) => { if (r.status() === 404 && r.url().startsWith(BASE)) notFound.push(r.url()); });
 page.on('dialog', (d) => d.accept());

@@ -2,6 +2,12 @@
 
 Statische Seite ohne Build-Schritt (HTML + CSS + JavaScript). Die Angebote stehen in `data/listings.json`, die Fotos in `img/`. Neue Angebote stellst du über die Admin-Seite `/admin/` ein, auch vom Handy.
 
+## Online
+
+Adresse: https://redbullenso.github.io/pc-shop/ (Admin: `/admin/`). Aktuell **noch nicht für Suchmaschinen freigegeben** (noindex in den drei Seiten + `robots.txt` mit `Disallow: /`). Zum Livegang: `noindex`-Zeile aus `index.html`, `impressum.html`, `datenschutz.html` löschen und `robots.txt` auf `User-agent: *` + `Disallow: /admin/` setzen.
+
+Tests gegen die Live-Seite: `BASE=https://redbullenso.github.io/pc-shop node tests/site.mjs`
+
 ## Vorschau am Rechner
 
 ```

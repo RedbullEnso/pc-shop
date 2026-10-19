@@ -23,4 +23,5 @@ export async function launch() {
   }
 }
 
-export const BASE = process.env.BASE || 'http://127.0.0.1:5176';
+// Lokal gegen den Vorschau-Server; live z. B. BASE=https://redbullenso.github.io/pc-shop
+export const BASE = (process.env.BASE || 'http://127.0.0.1:5176').replace(/\/$/, '');
