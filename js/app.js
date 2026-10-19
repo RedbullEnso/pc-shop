@@ -12,7 +12,7 @@ const price = (l) => h('span', { class: 'price' }, fmtPrice(l.price), l.negotiab
 const TRUST = [
   ['camera', 'Echte Fotos', 'Vom echten Gerät, nicht aus dem Katalog'],
   ['list', 'Vollständige Specs', 'Jedes Bauteil einzeln aufgeführt'],
-  ['alert', 'Mängel offen genannt', 'Was ich weiß, steht in der Anzeige'],
+  ['shield', 'Auf Mängel geprüft', 'Jeder PC wird vor dem Verkauf kontrolliert'],
   ['chat', 'Direkter Kontakt', 'Kein Zwischenhändler, ich antworte selbst'],
 ];
 

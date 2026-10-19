@@ -97,6 +97,7 @@ const ICONS = {
   camera: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   list: '<path d="M9 12l2 2 4-4"/><path d="M5 4h14v16H5z"/>',
   alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   chat: '<path d="M4 5h16v11H9l-5 4z"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   chevL: '<path d="M15 5l-7 7 7 7"/>',
