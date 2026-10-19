@@ -6,7 +6,7 @@ export default {
   tagline: 'Gebrauchte PCs. Ehrlich beschrieben.',
 
   // Ort, z. B. 'Raum Mainz'. Leer lassen = wird nirgends angezeigt.
-  region: '',
+  region: 'Raum Wiesbaden',
 
   // WhatsApp-Nummer: nur Ziffern, mit Ländervorwahl, ohne + und ohne Leerzeichen.
   // PLATZHALTER, vor dem Livegang durch die echte Nummer ersetzen!
