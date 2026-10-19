@@ -1,2 +1,4 @@
+# Vorab-Stand: noch nicht in Suchmaschinen. Zum Livegang durch "Allow: /" + "Disallow: /admin/" ersetzen
+# und das noindex-Meta aus index.html, impressum.html, datenschutz.html entfernen.
 User-agent: *
-Disallow: /admin/
+Disallow: /
