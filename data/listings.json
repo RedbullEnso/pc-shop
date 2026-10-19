@@ -1,0 +1,99 @@
+{
+  "updated": "2026-10-19",
+  "listings": [
+    {
+      "id": "beispiel-gaming-rtx3060ti",
+      "demo": true,
+      "title": "Gaming-PC Ryzen 5 5600 + RTX 3060 Ti",
+      "category": "Gaming-PC",
+      "status": "available",
+      "price": 599,
+      "negotiable": true,
+      "condition": "Sehr gut",
+      "specs": {
+        "cpu": "AMD Ryzen 5 5600",
+        "gpu": "NVIDIA RTX 3060 Ti 8 GB",
+        "ram": "16 GB DDR4-3200",
+        "storage": "1 TB NVMe SSD",
+        "mainboard": "MSI B550",
+        "psu": "650 W 80+ Bronze",
+        "case": "Mesh-Gehäuse, Tower-Kühler",
+        "os": "Windows 11 Pro (aktiviert)"
+      },
+      "checks": ["Stresstest bestanden", "Temperaturen geprüft", "Windows frisch installiert", "Innen gereinigt"],
+      "flaws": "Kleine Kratzer am Seitenteil, sonst keine bekannten Mängel.",
+      "description": "Beispieleintrag, nur zur Ansicht. Hier steht später deine Beschreibung: wofür der PC taugt, wie lange du ihn genutzt hast und was du verbessert hast.",
+      "handover": { "pickup": true, "shipping": false },
+      "photos": [],
+      "added": "2026-10-19"
+    },
+    {
+      "id": "beispiel-office-i5",
+      "demo": true,
+      "title": "Büro-PC Core i5-10400 mit SSD",
+      "category": "Office-PC",
+      "status": "available",
+      "price": 249,
+      "negotiable": false,
+      "condition": "Gut",
+      "specs": {
+        "cpu": "Intel Core i5-10400",
+        "gpu": "Intel UHD 630 (integriert)",
+        "ram": "16 GB DDR4",
+        "storage": "512 GB SSD",
+        "os": "Windows 11 Pro (aktiviert)"
+      },
+      "checks": ["Alle Anschlüsse getestet", "Windows frisch installiert"],
+      "flaws": "Keine bekannten Mängel.",
+      "description": "Beispieleintrag, nur zur Ansicht.",
+      "handover": { "pickup": true, "shipping": true },
+      "photos": [],
+      "added": "2026-10-17"
+    },
+    {
+      "id": "beispiel-streaming-12700k",
+      "demo": true,
+      "title": "Streaming-PC i7-12700K + RTX 3070",
+      "category": "Gaming-PC",
+      "status": "reserved",
+      "price": 849,
+      "negotiable": true,
+      "condition": "Sehr gut",
+      "specs": {
+        "cpu": "Intel Core i7-12700K",
+        "gpu": "NVIDIA RTX 3070 8 GB",
+        "ram": "32 GB DDR4-3600",
+        "storage": "1 TB NVMe SSD"
+      },
+      "checks": ["Stresstest bestanden", "Spiele-Test gelaufen"],
+      "flaws": "Keine bekannten Mängel.",
+      "description": "Beispieleintrag, nur zur Ansicht.",
+      "handover": { "pickup": true, "shipping": false },
+      "photos": [],
+      "added": "2026-10-15"
+    },
+    {
+      "id": "beispiel-ryzen3600-1660s",
+      "demo": true,
+      "title": "Einsteiger-Gaming-PC Ryzen 5 3600 + GTX 1660 Super",
+      "category": "Gaming-PC",
+      "status": "sold",
+      "price": 329,
+      "negotiable": false,
+      "condition": "Gut",
+      "specs": {
+        "cpu": "AMD Ryzen 5 3600",
+        "gpu": "NVIDIA GTX 1660 Super 6 GB",
+        "ram": "16 GB DDR4",
+        "storage": "500 GB SSD"
+      },
+      "checks": [],
+      "flaws": "Keine bekannten Mängel.",
+      "description": "Beispieleintrag, nur zur Ansicht.",
+      "handover": { "pickup": true, "shipping": false },
+      "photos": [],
+      "added": "2026-10-02",
+      "sold": "2026-10-10"
+    }
+  ]
+}

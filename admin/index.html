@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verwaltung</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0c10">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; connect-src https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div id="app"></div>
+  <div id="busy" class="busy" hidden role="alert"><div class="busy__box"><span class="spin" aria-hidden="true"></span><span id="busyText"></span></div></div>
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <noscript><p style="padding:24px">Die Verwaltung braucht JavaScript.</p></noscript>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
