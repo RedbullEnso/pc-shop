@@ -10,7 +10,7 @@ export default {
 
   // Kontaktwege. Leer lassen = wird nicht angezeigt. Deine private Handynummer steht nirgends.
   // PLATZHALTER, vor dem Livegang durch die echten Links ersetzen!
-  discord: 'https://discord.gg/DEIN-EINLADUNGSCODE', // Einladungslink zu deinem Verkaufs-Server
+  discord: 'https://discord.gg/EC435FswWH', // Einladungslink zu deinem Verkaufs-Server (läuft nie ab)
   discordChannel: 'anfragen', // Kanal, in den Käufer schreiben sollen
   kleinanzeigen: 'https://www.kleinanzeigen.de/', // Link zu deinem Kleinanzeigen-Profil
   email: '',
