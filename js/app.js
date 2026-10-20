@@ -81,8 +81,8 @@ function contactButtons(message, { discordLabel = 'Auf Discord anfragen', adUrl 
   const showHint = (copied) => {
     hint.hidden = false;
     hint.textContent = copied
-      ? `Nachricht kopiert. Füge sie im Server im Kanal ${channel} ein.`
-      : `Schreib im Server im Kanal ${channel}: ${message}`;
+      ? `Nachricht kopiert. Drück im Server im Kanal ${channel} auf „Anfrage starten“ und füge sie in deinem privaten Kanal ein.`
+      : `Drück im Server im Kanal ${channel} auf „Anfrage starten“ und schreib dort: ${message}`;
   };
   const copy = () => {
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(message).then(() => showHint(true), () => showHint(false));
@@ -119,7 +119,7 @@ function renderStatic() {
     h('details', { class: 'reveal' }, h('summary', {}, f.q), h('p', {}, f.a))));
 
   $('#contactHow').textContent = DISCORD
-    ? `So geht's: Tritt dem Discord-Server bei und schreib im Kanal „${cfg.discordChannel}“, welcher PC dich interessiert. Beim Klick wird deine Nachricht schon kopiert.`
+    ? `So geht's: Tritt dem Discord-Server bei und drück im Kanal „${cfg.discordChannel}“ auf „Anfrage starten“. Du bekommst einen privaten Kanal, den nur du und ich sehen. Beim Klick wird deine Nachricht schon kopiert.`
     : '';
   $('#contactLinks').replaceChildren(
     ...contactButtons(HELLO, { discordLabel: 'Discord-Server beitreten' }),

@@ -40,7 +40,7 @@ export default {
   steps: [
     {
       title: 'Anfragen',
-      text: 'Tritt dem Discord-Server bei und schreib im Kanal „anfragen“, welcher PC dich interessiert. Ein Klick auf „Anfragen“ kopiert die Nachricht schon.',
+      text: 'Tritt dem Discord-Server bei und drück im Kanal „anfragen“ auf „Anfrage starten“. Du bekommst einen privaten Kanal, den nur du und ich sehen. Ein Klick auf „Anfragen“ kopiert die Nachricht schon.',
     },
     {
       title: 'Ansehen & testen',
